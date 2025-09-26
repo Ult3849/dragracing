@@ -560,60 +560,69 @@ container.appendChild(enemyCarImg);
 }
 
 // ---------- Dealer ----------
-function renderDealer(page=1){
+function renderDealer(page = 1) {
   clearRoot();
   root.appendChild(renderHeader());
+
   const perPage = 10;
-  const start = (page-1)*perPage;
-  const pageCars = defaultCars.slice(start, start+perPage);
+  const start = (page - 1) * perPage;
+  const pageCars = defaultCars.slice(start, start + perPage);
+
   const container = el('div');
-  container.appendChild(el('h2','Dealer'));
+  container.appendChild(el('h2', 'Dealer'));
 
-  pageCars.forEach(c=>{
+  pageCars.forEach(c => {
     const row = el('div');
-row.className = 'dealer-item';
+    row.className = 'dealer-item';
 
-// bagian kiri (info mobil)
-const info = el('div');
-info.appendChild(el('div', 'Nama: ' + c.name));
-info.appendChild(el('div', 'Harga: $' + c.price));
-const img = el('img');
-img.src = getCarImage(c);
-img.width = 240;
-info.appendChild(img);
+    // bagian kiri (info mobil)
+    const info = el('div');
+    info.appendChild(el('div', 'Nama: ' + c.name));
+    info.appendChild(el('div', 'Harga: $' + c.price));
+    const img = el('img');
+    img.src = getCarImage(c);
+    img.width = 240;
+    info.appendChild(img);
 
-// bagian kanan (tombol beli)
-const buyBox = el('div');
-const buyLink = link('Beli', ()=>{
-  if(state.money < c.price){
-    alert('Uang tidak cukup');
-    return;
-  }
-  state.money -= c.price;
-  const copy = JSON.parse(JSON.stringify(c));
-  copy.id = copy.id + '_' + Math.floor(Math.random()*10000);
-  if(!copy.upgrades) copy.upgrades = {};
-  state.ownedCars.push(copy);
-  state.garage.push(copy.id);
-  saveState();
-  alert('Terbeli: ' + copy.name);
-  renderDealer(page);
-});
-buyBox.appendChild(buyLink);
+    // bagian kanan (tombol beli)
+    const buyBox = el('div');
+    const buyLink = link('Beli', () => {
+      if (state.money < c.price) {
+        alert('Uang tidak cukup');
+        return;
+      }
+      state.money -= c.price;
 
-// satukan
-row.appendChild(info);
-row.appendChild(buyBox);
-container.appendChild(row);
+      // add copy of car to owned
+      const copy = JSON.parse(JSON.stringify(c));
+      copy.id = copy.id + '_' + Math.floor(Math.random() * 10000);
+      if (!copy.upgrades) copy.upgrades = {};
+      state.ownedCars.push(copy);
+      state.garage.push(copy.id);
+      saveState();
+
+      alert('Terbeli: ' + copy.name);
+      renderDealer(page);
+    });
+    buyBox.appendChild(buyLink);
+
+    // satukan
+    row.appendChild(info);
+    row.appendChild(buyBox);
+    container.appendChild(row);
+  });
 
   // pagination
-  if(defaultCars.length > perPage){
-    const nextLink = link('Next Page', ()=> renderDealer(page+1));
-container.appendChild(nextLink);
+  if (defaultCars.length > perPage) {
+    const nextLink = link('Next Page', () => renderDealer(page + 1));
+    container.appendChild(nextLink);
   }
- const back = link('Kembali', ()=> renderMainMenu());
-container.appendChild(el('br'));
-container.appendChild(back);
+
+  // tombol kembali
+  const back = link('Kembali', () => renderMainMenu());
+  container.appendChild(el('br'));
+  container.appendChild(back);
+
   root.appendChild(container);
 }
 
