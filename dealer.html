@@ -2,15 +2,17 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Dealer - Drag Racing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drag Racing - Dealer</title>
   <link rel="stylesheet" href="style.css">
-  <script src="game.js"></script>
 </head>
 <body>
   <div id="app"></div>
+
   <script>
-    renderDealer();
+    // tell game.js which view to auto-open on this page
+    window.INIT_VIEW = "dealer";
   </script>
-  <a href="index.html">Kembali ke Menu Utama</a>
+  <script src="game.js"></script>
 </body>
 </html>

@@ -149,22 +149,6 @@ function calcRaceScore(car, trackLength){
   return (effectivePower * powerWeight) + (car.stats.speed * speedWeight);
 }
 
-// ---------- Helpers ----------
-function loadState() {
-  try {
-    return JSON.parse(localStorage.getItem("dr_game_v1"));
-  } catch (e) {
-    return null;
-  }
-}
-
-function makeChapters() {
-  return [
-    { id: 1, name: "Chapter 1", unlocked: true },
-    { id: 2, name: "Chapter 2", unlocked: false }
-  ];
-}
-
 // ---------- State ----------
 let state = loadState() || {
   _version: GAME_VERSION,   // simpan versi
@@ -1025,6 +1009,7 @@ function renderApp(){
 
 // initialize and render
 saveState();
+renderApp();
 
 // Also ensure if there's an active job that finishes while away, it is processed when app loads
 function checkJobOnLoad(){
@@ -1041,3 +1026,37 @@ checkJobOnLoad();
 
 // expose for debugging on console
 window._dr_game_state = state;
+
+
+// --- AUTO INIT: if page set window.INIT_VIEW, call matching renderer ---
+(function(){
+  function safeCall(fn){
+    try{ if(typeof fn === 'function') fn(); }catch(e){ console.error('init error',e); }
+  }
+
+  function initByView(view){
+    if(!view) return;
+    view = view.toString().toLowerCase();
+    if(view === 'index' || view === 'home' || view === '') safeCall(renderMainMenu);
+    else if(view === 'karir' || view === 'career') safeCall(renderCareerChapters);
+    else if(view === 'dealer') safeCall(function(){ renderDealer(1); });
+    else if(view === 'kerja' || view === 'jobs') safeCall(renderJobs);
+    else if(view === 'garasi' || view === 'garage') safeCall(renderGarage);
+    else if(view === 'rival') safeCall(renderRivals);
+    else if(view === 'profile') safeCall(renderProfile);
+    else if(view.match(/^bab\\s*1$/) || view === 'bab1' || view === 'chapter1') safeCall(function(){ renderChapterDetail(0); });
+    else if(view.match(/^bab\\s*2$/) || view === 'bab2' || view === 'chapter2') safeCall(function(){ renderChapterDetail(1); });
+    else if(view === 'bab3' || view === 'chapter3') safeCall(function(){ renderChapterDetail(2); });
+    else if(view === 'bab4' || view === 'chapter4') safeCall(function(){ renderChapterDetail(3); });
+    else if(view === 'bab5' || view === 'chapter5') safeCall(function(){ renderChapterDetail(4); });
+    else safeCall(renderMainMenu);
+  }
+
+  // If INIT_VIEW set before script load, call it after a small timeout to ensure functions exist.
+  if(window.INIT_VIEW){
+    setTimeout(function(){ initByView(window.INIT_VIEW); }, 50);
+  } else {
+    // If no INIT_VIEW, default to main menu on load
+    window.addEventListener('load', function(){ setTimeout(renderMainMenu, 20); });
+  }
+})();

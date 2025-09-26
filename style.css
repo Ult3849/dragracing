@@ -1,68 +1,88 @@
 body {
-font-family: Arial, sans-serif;
-margin: 0;
-padding: 10px;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 10px;
+  }
+
+hr {
+    
 }
 
-button {
-padding: 6px 14px;
-margin: 4px;
-border-radius: 6px;
-border: 1px solid #555;
-background: #fff;
-cursor: pointer;
-transition: background 0.2s;
-}
+  button {
+    padding: 6px 14px;
+    margin: 4px;
+    border-radius: 6px;
+    border: 1px solid #555;
+    background: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  button:hover {
+    background: #ddd;
+  }
+  button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+
   
-button:disabled {
-background: #ccc;
-cursor: not-allowed;
-}
+  .header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+  }
 
-.header {
-display: flex;
-justify-content: space-between;
-font-size: 14px;
-}
-   
+  .menu {
+
+  }
+  
 .main-menu {
-text-align: left; 
+  text-align: left; 
 }
 
-.chapter-row {
-display: flex;
-justify-content: space-between;
+.main-menu h2 {
+
 }
 
-.battle-container {
-margin-top: 20px;
-}
-  
-.battle-names {
-display: flex;
-justify-content: space-between;
-font-weight: bold;
-font-size: 18px;
-margin-bottom: 10px;
-}
+  /* Career chapter list */
+  .chapter-row {
+    display: flex;
+    justify-content: space-between;
+  }
 
-.battle-car {
-display: block;
-margin: 10px auto;
-}
-  
-.battle-btn {
-display: block;
-margin: 15px auto;
-padding: 8px 20px;
-font-size: 16px;
-}
+  /* Battle */
+  .battle-container {
+    margin-top: 20px;
+  }
+  .battle-names {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
 
-.rival-row {
-margin-bottom: 20px;
-}
- 
-.car-img {
-display: block;
-margin: 10px auto;
-}
+  .battle-car {
+    display: block;
+    margin: 10px auto;
+  }
+  .battle-btn {
+    display: block;
+    margin: 15px auto;
+    padding: 8px 20px;
+    font-size: 16px;
+  }
+
+  /* Rival */
+  .rival-row {
+    margin-bottom: 20px;
+  }
+
+  /* Garage */
+  .garage-container {
+   
+  }
+  .car-img {
+    display: block;
+    margin: 10px auto;
+  }
