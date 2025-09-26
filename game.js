@@ -237,21 +237,29 @@ function renderMainMenu(){
   menu.className = 'main-menu menu';
   menu.appendChild(el('h2','Menu Utama'));
 
-  const links = [
-    {text:'Karir', href:'karir.html'},
-    {text:'Dealer', href:'dealer.html'},
-    {text:'Kerja', href:'kerja.html'},
-    {text:'Garasi', href:'garasi.html'},
-    {text:'Rival', href:'rival.html'},
-    {text:'Profile', href:'profile.html'},
-  ];
-
-  links.forEach(l=>{
-    const a = document.createElement('a');
-    a.textContent = l.text;
-    a.href = l.href;
-    menu.appendChild(a);
-    menu.appendChild(el('br'));
+  const buttons = ['Karir','Dealer','Kerja','Garasi','Rival','Profile'];
+  buttons.forEach(b=>{
+    const link = el('a', b);  
+    link.href = "#";       
+    link.onclick = (e)=> {
+      e.preventDefault();
+      switch(b){
+         case 'Karir':
+           if (state.careerPrologSeen) {
+             renderCareerChapters();
+           } else {
+             renderCareerStart();
+           }
+           break;
+         case 'Dealer': renderDealer(1); break;
+         case 'Kerja': renderJobs(); break;
+         case 'Garasi': renderGarage(); break;
+         case 'Rival': renderRivals(); break;
+         case 'Profile': renderProfile(); break;
+      }
+    };
+    menu.appendChild(link);
+menu.appendChild(el('br'));
   });
 
   root.appendChild(menu);
@@ -653,3 +661,368 @@ container.appendChild(cancel);
       state.currentJob = null;
       saveState();
       renderJobs();
+      return;
+    } else {
+      setTimeout(()=> renderJobs(), 1000);
+    }
+  } else {
+    container.appendChild(el('div','Tidak ada pekerjaan sedang berlangsung.'));
+  }
+
+  const back = link('Kembali', ()=> renderMainMenu());
+container.appendChild(el('br')); 
+container.appendChild(back);
+  root.appendChild(container);
+}
+
+// ---------- Garage ----------
+function renderGarage(){
+  clearRoot();
+  root.appendChild(renderHeader());
+  const container = el('div');
+container.className = 'garage-container';
+
+const img = el('img');
+img.className = 'car-img';
+  container.appendChild(el('h2','Garasi'));
+  const currentCar = getCarById(state.currentCarId);
+  container.appendChild(el('div', 'Mobil digunakan: ' + (currentCar ? currentCar.name : 'Tidak ada')));
+  if(currentCar){
+  const img = el('img'); 
+  img.src = getCarImage(currentCar);
+  img.width = 300;
+  container.appendChild(img);
+}
+    // stats bars text
+    const statsDiv = el('div');
+    if(currentCar){
+statsDiv.appendChild(el('div', `Speed: ${currentCar.stats.speed} KM/H`));
+statsDiv.appendChild(el('div', `Power: ${currentCar.stats.power} HP`));
+statsDiv.appendChild(el('div', `Weight: ${currentCar.stats.weight} KG`));
+container.appendChild(statsDiv);
+  }
+  // menu within garage
+const ops = ['upgrade','Semua mobil','Bahan bakar'];
+ops.forEach(op=>{
+  const linkEl = link(op, ()=>{
+    switch(op){
+      case 'upgrade': renderUpgrade(); break;
+      case 'Semua mobil': renderAllCarsInGarage(); break;
+      case 'Bahan bakar': renderFuelShop(); break;
+    }
+  });
+  container.appendChild(linkEl);
+  container.appendChild(el('br')); // optional, beri jarak antar link
+});
+
+  const back = link('Kembali', ()=> renderMainMenu());
+  container.appendChild(el('br'));
+  container.appendChild(back);
+  root.appendChild(container);
+}
+
+function renderAllCarsInGarage(){
+  clearRoot();
+  root.appendChild(renderHeader());
+  const container = el('div');
+  container.appendChild(el('h2','Semua Mobil (Garasi)'));
+  state.ownedCars.forEach(c=>{
+    const row = el('div');
+    row.appendChild(el('div', c.name));
+    row.appendChild(el('div', '$' + (c.price || 0)));
+    const img = el('img'); 
+img.src = getCarImage(c);
+img.width = 240;
+row.appendChild(img);
+    const useLink = link('Gunakan', ()=> {
+  state.currentCarId = c.id;
+  saveState();
+  alert('Mobil sekarang: ' + c.name);
+  renderGarage();
+});
+row.appendChild(useLink);
+    container.appendChild(row);
+  });
+  const back = link('Kembali', ()=> renderGarage());
+container.appendChild(el('br'));
+container.appendChild(back);
+  root.appendChild(container);
+}
+
+function getAvatarImage(name, type) {
+  if (type === 'player') return 'images/player.png';
+  if (name === 'Anonymous') return 'images/anonymous.png';
+
+  // mapping untuk bos
+  const bossImages = {
+    'Andi': 'images/andi.png',
+    'Tiara': 'images/tiara.png',
+    'Reza': 'images/reza.png',
+    'Siska': 'images/siska.png',
+    'Black Cobra': 'images/blackcobra.png'
+  };
+
+  return bossImages[name] || 'images/anonymous.png';
+}
+
+function renderUpgrade(){
+  clearRoot();
+  root.appendChild(renderHeader());
+  const car = getCarById(state.currentCarId);
+  if(!car){ 
+    alert('Tidak ada mobil dipilih'); 
+    renderGarage(); 
+    return; 
+  }
+  const container = el('div');
+  container.appendChild(el('h2','Upgrade - ' + car.name));
+
+  // pastikan ada slot upgrades
+  if(!car.upgrades) car.upgrades = {};
+
+  ["speed","power","weight"].forEach(k=>{
+    const row = el('div');
+    
+
+    // tampilkan label dan value
+    let label = '';
+    if(k==="speed") label = `Speed: ${car.stats.speed} KM/H`;
+    if(k==="power") label = `Power: ${car.stats.power} HP`;
+    if(k==="weight") label = `Weight: ${car.stats.weight} KG`;
+
+    const span = el('span', label);
+    row.appendChild(span);
+
+    // upgrade info
+    const upgradesDone = car.upgrades[k] || 0;
+    const maxUpgrades = 5;
+    const cost = 200; 
+
+    if(upgradesDone < maxUpgrades){
+      const upgradeLink = el('a', 'Upgrade');
+      upgradeLink.href = "#";
+      upgradeLink.style.marginLeft = '10px';
+      upgradeLink.onclick = (e)=>{
+        e.preventDefault();
+        if(state.money < cost){ 
+          alert('Uang tidak cukup'); 
+          return; 
+        }
+        state.money -= cost;
+
+        // logika upgrade
+        if(k==="speed") car.stats.speed += 7;
+        if(k==="power") car.stats.power += 8;
+        if(k==="weight") car.stats.weight -= 70;
+
+        car.upgrades[k] = upgradesDone + 1;
+        saveState();
+        renderUpgrade();
+      };
+
+      // teks biaya biasa
+      const costSpan = el('span', ` (Biaya: ${cost})`);
+      row.appendChild(upgradeLink);
+      row.appendChild(costSpan);
+    } else {
+      // tampilkan "Max" saja
+      const maxSpan = el('span', ' (MAX)');
+      maxSpan.style.marginLeft = '10px';
+      row.appendChild(maxSpan);
+    }
+
+    container.appendChild(row);
+  });
+
+  const back = link('Kembali', ()=> renderGarage());
+  container.appendChild(el('br'));
+  container.appendChild(back);
+
+  root.appendChild(container);
+}
+
+
+function renderPaint(){
+  clearRoot();
+  root.appendChild(renderHeader());
+  const car = getCarById(state.currentCarId);
+  if(!car){ alert('Tidak ada mobil dipilih'); renderGarage(); return; }
+  const container = el('div');
+  container.appendChild(el('h2','Paint - ' + car.name));
+  container.appendChild(el('div','Warna saat ini: ' + car.color));
+  container.appendChild(el('img',)); // placeholder
+  const colors = ['#ff4444','#44aaee','#ffaa00','#88cc66','#7744ff','#dd1155','#333300'];
+  colors.forEach(c=>{
+    const box = el('button');
+    box.textContent = c;
+    box.style.marginRight='4px';
+    box.onclick = ()=>{
+      const cost = 50;
+      if(state.money < cost){ alert('Uang tidak cukup'); return; }
+      state.money -= cost;
+      car.color = c;
+      saveState();
+      renderPaint();
+    };
+    container.appendChild(box);
+  });
+  const back = el('button','Kembali');
+  back.onclick = ()=> renderGarage();
+  container.appendChild(el('br'));
+  container.appendChild(back);
+  root.appendChild(container);
+}
+
+function renderVinylEditor(){
+  clearRoot();
+  root.appendChild(renderHeader());
+  const car = getCarById(state.currentCarId);
+  if(!car){ alert('Tidak ada mobil dipilih'); renderGarage(); return; }
+  const container = el('div');
+  container.appendChild(el('h2','Vinyl Editor - ' + car.name));
+  container.appendChild(el('div','Pixel-art sederhana (8x4). Klik kotak untuk toggle. Biaya simpan: $100'));
+  const grid = el('div');
+  const cols = 8, rows = 4;
+  const pixels = [];
+  for(let r=0;r<rows;r++){
+    const row = el('div');
+    for(let c=0;c<cols;c++){
+      const cell = el('button');
+      cell.textContent = ' ';
+      cell.style.width='20px'; cell.style.height='20px'; cell.style.margin='1px';
+      cell.dataset.on = '0';
+      cell.onclick = ()=> {
+        cell.dataset.on = cell.dataset.on==='0' ? '1' : '0';
+        cell.style.background = cell.dataset.on==='1' ? '#000' : '#fff';
+      };
+      row.appendChild(cell);
+      pixels.push(cell);
+    }
+    grid.appendChild(row);
+  }
+  container.appendChild(grid);
+  const save = el('button','Simpan Vinyl ($100)');
+  save.onclick = ()=>{
+    const cost = 100;
+    if(state.money < cost){ alert('Uang tidak cukup'); return; }
+    state.money -= cost;
+    // For simplicity we'll add a flag to car saying it has vinyl
+    car.vinyl = pixels.map(p=>p.dataset.on).join('');
+    saveState();
+    alert('Vinyl disimpan.');
+    renderGarage();
+  };
+  const back = el('button','Kembali');
+  back.onclick = ()=> renderGarage();
+  container.appendChild(save);
+  container.appendChild(el('br'));
+  container.appendChild(back);
+  root.appendChild(container);
+}
+
+function renderFuelShop(){
+  clearRoot();
+  root.appendChild(renderHeader());
+  const container = el('div');
+  container.appendChild(el('h2','Bahan Bakar'));
+  container.appendChild(el('div', `Fuel: ${state.fuel}/${state.maxFuel}`));
+  const full = link('Beli Full Bahan Bakar ($50)', ()=>{
+  const cost = 50;
+  if(state.money < cost){ alert('Uang tidak cukup'); return; }
+  state.money -= cost;
+  state.fuel = state.maxFuel;
+  saveState();
+  alert('Bahan bakar penuh.');
+  renderGarage();
+});
+container.appendChild(full);
+container.appendChild(el('br'));
+
+const back = link('Kembali', ()=> renderGarage());
+container.appendChild(back);
+  root.appendChild(container);
+}
+
+const bossBios = {
+  'Andi': "<b>Bio:</b> Andi adalah pembalap jalanan muda.<br><b>Kepribadian:</b> Ambisius dan keras kepala.<br><b>Motivasi:</b> Ingin membuktikan dirinya di dunia balap.",
+  'Tiara': "<b>Bio:</b> Tiara dikenal elegan namun mematikan.<br><b>Kepribadian:</b> Percaya diri.<br><b>Motivasi:</b> Membawa nama baik timnya ke puncak.",
+  'Reza': "<b>Bio:</b> Reza si teknisi mesin.<br><b>Kepribadian:</b> Tenang, analitis.<br><b>Motivasi:</b> Menjadi legenda dengan mengandalkan strategi.",
+  'Siska': "<b>Bio:</b> Siska penuh kejutan.<br><b>Kepribadian:</b> Karismatik tapi agresif.<br><b>Motivasi:</b> Membuktikan bahwa perempuan bisa jadi juara sejati.",
+  'Black Cobra': "<b>Bio:</b> Bos final misterius.<br><b>Kepribadian:</b> Dinginnya seperti ular.<br><b>Motivasi:</b> Menguasai dunia balap jalanan."
+};
+
+// ---------- Rival ----------
+function renderRivals(){
+  clearRoot();
+  root.appendChild(renderHeader());
+  const container = el('div');
+  container.appendChild(el('h2','Rival'));
+  const bosses = [];
+  state.chapters.forEach(ch=>{
+    const boss = ch.enemies.find(e=>e.type==='boss');
+    if(boss) bosses.push(boss);
+  });
+  bosses.forEach(b=>{
+    if(state.defeatedBosses[b.id]){
+      const row = el('div');
+row.className = 'rival-row';
+      row.appendChild(el('div', b.name));
+      const img = el('img'); img.src = getAvatarImage(b.name, b.type); img.width=120;
+      row.appendChild(img);
+      const bioDiv = document.createElement('div');
+bioDiv.innerHTML = bossBios[b.name] || "<b>Bio:</b><br><b>Kepribadian:</b><br><b>Motivasi:</b>";
+row.appendChild(bioDiv);
+      container.appendChild(row);
+    }
+  });
+  const back = link('Kembali', ()=> renderMainMenu());
+container.appendChild(el('br')); 
+container.appendChild(back);
+  root.appendChild(container);
+}
+
+// ---------- Profile ----------
+function renderProfile(){
+  clearRoot();
+  root.appendChild(renderHeader());
+  const container = el('div');
+  container.appendChild(el('h2','Profile'));
+  const img = el('img'); img.src = getAvatarImage(state.player.name, 'player');
+  img.width=120;
+  container.appendChild(img);
+  container.appendChild(el('div', 'Nama: ' + state.player.name));
+  container.appendChild(el('div', 'Wins: ' + state.player.wins));
+  container.appendChild(el('div', 'Losses: ' + state.player.losses));
+  const back = link('Kembali', ()=> renderMainMenu());
+  container.appendChild(el('br'));
+  container.appendChild(back);
+
+  root.appendChild(container);
+}
+
+
+// ---------- Generic app render ----------
+function renderApp(){
+  // called often
+  renderMainMenu();
+}
+
+// initialize and render
+saveState();
+renderApp();
+
+// Also ensure if there's an active job that finishes while away, it is processed when app loads
+function checkJobOnLoad(){
+  if(state.currentJob){
+    if(now() >= state.currentJob.endTime){
+      state.money += state.currentJob.jobData.wage;
+      alert('Pekerjaan selesai saat Anda kembali. Menerima $' + state.currentJob.jobData.wage);
+      state.currentJob = null;
+      saveState();
+    }
+  }
+}
+checkJobOnLoad();
+
+// expose for debugging on console
+window._dr_game_state = state;
