@@ -1,0 +1,68 @@
+body {
+font-family: Arial, sans-serif;
+margin: 0;
+padding: 10px;
+}
+
+button {
+padding: 6px 14px;
+margin: 4px;
+border-radius: 6px;
+border: 1px solid #555;
+background: #fff;
+cursor: pointer;
+transition: background 0.2s;
+}
+  
+button:disabled {
+background: #ccc;
+cursor: not-allowed;
+}
+
+.header {
+display: flex;
+justify-content: space-between;
+font-size: 14px;
+}
+   
+.main-menu {
+text-align: left; 
+}
+
+.chapter-row {
+display: flex;
+justify-content: space-between;
+}
+
+.battle-container {
+margin-top: 20px;
+}
+  
+.battle-names {
+display: flex;
+justify-content: space-between;
+font-weight: bold;
+font-size: 18px;
+margin-bottom: 10px;
+}
+
+.battle-car {
+display: block;
+margin: 10px auto;
+}
+  
+.battle-btn {
+display: block;
+margin: 15px auto;
+padding: 8px 20px;
+font-size: 16px;
+}
+
+.rival-row {
+margin-bottom: 20px;
+}
+ 
+.car-img {
+display: block;
+margin: 10px auto;
+}
