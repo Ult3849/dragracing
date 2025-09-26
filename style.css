@@ -25,7 +25,19 @@ hr {
     cursor: not-allowed;
   }
 
-  
+  .dealer-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0;
+  padding: 4px;
+  border-bottom: 1px solid #ccc;
+}
+
+.dealer-item button {
+  margin-left: 12px; 
+}
+
   .header {
     display: flex;
     justify-content: space-between;

@@ -571,22 +571,25 @@ function renderDealer(page=1){
 
   pageCars.forEach(c=>{
     const row = el('div');
-    row.appendChild(el('div', 'Nama: ' + c.name));
-    row.appendChild(el('div', 'Harga: $' + c.price));
-    const img = el('img'); 
+row.className = 'dealer-item';
+
+// bagian kiri (info mobil)
+const info = el('div');
+info.appendChild(el('div', 'Nama: ' + c.name));
+info.appendChild(el('div', 'Harga: $' + c.price));
+const img = el('img');
 img.src = getCarImage(c);
 img.width = 240;
-row.appendChild(img);
+info.appendChild(img);
 
-    // <-- statistik dihilangkan: tidak menambahkan statDiv ke DOM -->
-
-    const buyLink = link('Beli', ()=>{
+// bagian kanan (tombol beli)
+const buyBox = el('div');
+const buyLink = link('Beli', ()=>{
   if(state.money < c.price){
     alert('Uang tidak cukup');
     return;
   }
   state.money -= c.price;
-  // add copy of car to owned
   const copy = JSON.parse(JSON.stringify(c));
   copy.id = copy.id + '_' + Math.floor(Math.random()*10000);
   if(!copy.upgrades) copy.upgrades = {};
@@ -596,9 +599,12 @@ row.appendChild(img);
   alert('Terbeli: ' + copy.name);
   renderDealer(page);
 });
-row.appendChild(buyLink);
-    container.appendChild(row);
-  });
+buyBox.appendChild(buyLink);
+
+// satukan
+row.appendChild(info);
+row.appendChild(buyBox);
+container.appendChild(row);
 
   // pagination
   if(defaultCars.length > perPage){
