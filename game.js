@@ -149,6 +149,22 @@ function calcRaceScore(car, trackLength){
   return (effectivePower * powerWeight) + (car.stats.speed * speedWeight);
 }
 
+// ---------- Helpers ----------
+function loadState() {
+  try {
+    return JSON.parse(localStorage.getItem("dr_game_v1"));
+  } catch (e) {
+    return null;
+  }
+}
+
+function makeChapters() {
+  return [
+    { id: 1, name: "Chapter 1", unlocked: true },
+    { id: 2, name: "Chapter 2", unlocked: false }
+  ];
+}
+
 // ---------- State ----------
 let state = loadState() || {
   _version: GAME_VERSION,   // simpan versi
