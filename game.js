@@ -1009,7 +1009,6 @@ function renderApp(){
 
 // initialize and render
 saveState();
-renderApp();
 
 // Also ensure if there's an active job that finishes while away, it is processed when app loads
 function checkJobOnLoad(){
